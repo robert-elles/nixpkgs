@@ -167,7 +167,7 @@ let
          else throw "No device specified for mount point ‘${fs.mountPoint}’.")
       + " " + escape (rootPrefix + fs.mountPoint)
       + " " + fs.fsType
-      + " " + builtins.concatStringsSep "," (fs.options ++ (extraOpts fs))
+      + " " + escape (builtins.concatStringsSep "," (fs.options ++ (extraOpts fs)))
       + " " + (optionalString (!excludeChecks)
         ("0 " + (if skipCheck fs then "0" else if fs.mountPoint == "/" then "1" else "2")))
       + "\n"
@@ -300,11 +300,7 @@ in
     boot.supportedFilesystems = map (fs: fs.fsType) fileSystems;
 
     # Add the mount helpers to the system path so that `mount' can find them.
-    system.fsPackages = [
-      pkgs.dosfstools
-      # This is needed for the main fsck utility wrapping the fs-specific ones.
-      pkgs.util-linux
-    ];
+    system.fsPackages = [ pkgs.dosfstools ];
 
     environment.systemPackages = with pkgs; [ fuse3 fuse ] ++ config.system.fsPackages;
 
